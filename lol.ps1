@@ -784,14 +784,14 @@ C:\Vuln\config.ini         {ReadAttributes, ReadCo... NT AUTHORITY\Authentic...
 
 .OUTPUTS
 
-PowerUp.TokenPrivilege.ModifiablePath
+lol.TokenPrivilege.ModifiablePath
 
 Custom PSObject containing the Permissions, ModifiablePath, IdentityReference for
 a modifiable path.
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
-    [OutputType('PowerUp.ModifiablePath')]
+    [OutputType('lol.ModifiablePath')]
     [CmdletBinding()]
     Param(
         [Parameter(Position = 0, Mandatory = $True, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
@@ -922,7 +922,7 @@ a modifiable path.
                             $Out | Add-Member Noteproperty 'ModifiablePath' $CandidatePath
                             $Out | Add-Member Noteproperty 'IdentityReference' $_.IdentityReference
                             $Out | Add-Member Noteproperty 'Permissions' $Permissions
-                            $Out.PSObject.TypeNames.Insert(0, 'PowerUp.ModifiablePath')
+                            $Out.PSObject.TypeNames.Insert(0, 'lol.ModifiablePath')
                             $Out
                         }
                     }
@@ -962,17 +962,17 @@ The type of information to query for the token handle, either 'Groups', 'Privile
 
 .OUTPUTS
 
-PowerUp.TokenGroup
+lol.TokenGroup
 
 Outputs a custom object containing the token group (SID/attributes) for the specified token if
 "-InformationClass 'Groups'" is passed.
 
-PowerUp.TokenPrivilege
+lol.TokenPrivilege
 
 Outputs a custom object containing the token privilege (name/attributes) for the specified token if
 "-InformationClass 'Privileges'" is passed
 
-PowerUp.TokenType
+lol.TokenType
 
 Outputs a custom object containing the token type and impersonation level for the specified token if
 "-InformationClass 'Type'" is passed
@@ -986,8 +986,8 @@ https://msdn.microsoft.com/en-us/library/windows/desktop/aa379626(v=vs.85).aspx
 https://msdn.microsoft.com/en-us/library/windows/desktop/aa379630(v=vs.85).aspx
 #>
 
-    [OutputType('PowerUp.TokenGroup')]
-    [OutputType('PowerUp.TokenPrivilege')]
+    [OutputType('lol.TokenGroup')]
+    [OutputType('lol.TokenPrivilege')]
     [CmdletBinding()]
     Param(
         [Parameter(Position = 0, Mandatory = $True, ValueFromPipeline = $True)]
@@ -1029,7 +1029,7 @@ https://msdn.microsoft.com/en-us/library/windows/desktop/aa379630(v=vs.85).aspx
                             # cast the atttributes field as our SidAttributes enum
                             $GroupSid | Add-Member Noteproperty 'Attributes' ($TokenGroups.Groups[$i].Attributes -as $SidAttributes)
                             $GroupSid | Add-Member Noteproperty 'TokenHandle' $TokenHandle
-                            $GroupSid.PSObject.TypeNames.Insert(0, 'PowerUp.TokenGroup')
+                            $GroupSid.PSObject.TypeNames.Insert(0, 'lol.TokenGroup')
                             $GroupSid
                         }
                     }
@@ -1058,7 +1058,7 @@ https://msdn.microsoft.com/en-us/library/windows/desktop/aa379630(v=vs.85).aspx
                     # cast the lower Luid field as our LuidAttributes enum
                     $Privilege | Add-Member Noteproperty 'Attributes' ($TokenPrivileges.Privileges[$i].Attributes -as $LuidAttributes)
                     $Privilege | Add-Member Noteproperty 'TokenHandle' $TokenHandle
-                    $Privilege.PSObject.TypeNames.Insert(0, 'PowerUp.TokenPrivilege')
+                    $Privilege.PSObject.TypeNames.Insert(0, 'lol.TokenPrivilege')
                     $Privilege
                 }
             }
@@ -1101,7 +1101,7 @@ https://msdn.microsoft.com/en-us/library/windows/desktop/aa379630(v=vs.85).aspx
                 $Temp = $TokenImpersonationLevelPtr -as $IMPERSONATION_LEVEL
                 $TokenResult | Add-Member Noteproperty 'ImpersonationLevel' $Temp.ImpersonationLevel
                 $TokenResult | Add-Member Noteproperty 'TokenHandle' $TokenHandle
-                $TokenResult.PSObject.TypeNames.Insert(0, 'PowerUp.TokenType')
+                $TokenResult.PSObject.TypeNames.Insert(0, 'lol.TokenType')
                 $TokenResult
             }
             else {
@@ -1176,13 +1176,13 @@ S-1-16-8192                                            1892                2044
 
 .OUTPUTS
 
-PowerUp.TokenGroup
+lol.TokenGroup
 
 Outputs a custom object containing the token group (SID/attributes) for the specified process.
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
-    [OutputType('PowerUp.TokenGroup')]
+    [OutputType('lol.TokenGroup')]
     [CmdletBinding()]
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
@@ -1341,13 +1341,13 @@ ProcessId   : 2044
 
 .OUTPUTS
 
-PowerUp.TokenPrivilege
+lol.TokenPrivilege
 
 Outputs a custom object containing the token privilege (name/attributes) for the specified process.
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
-    [OutputType('PowerUp.TokenPrivilege')]
+    [OutputType('lol.TokenPrivilege')]
     [CmdletBinding()]
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
@@ -1455,13 +1455,13 @@ ProcessId          : 2044
 
 .OUTPUTS
 
-PowerUp.TokenType
+lol.TokenType
 
 Outputs a custom object containing the token type and impersonation level for the specified process.
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
-    [OutputType('PowerUp.TokenType')]
+    [OutputType('lol.TokenType')]
     [CmdletBinding()]
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
@@ -2050,7 +2050,7 @@ Get a set of potentially exploitable services.
 
 .OUTPUTS
 
-PowerUp.UnquotedService
+lol.UnquotedService
 
 .LINK
 
@@ -2058,7 +2058,7 @@ https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/wind
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
-    [OutputType('PowerUp.UnquotedService')]
+    [OutputType('lol.UnquotedService')]
     [CmdletBinding()]
     Param()
 
@@ -2088,7 +2088,7 @@ https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/wind
                 $Out | Add-Member Noteproperty 'AbuseFunction' "Write-ServiceBinary -Name '$($Service.name)' -Path <HijackPath>"
                 $Out | Add-Member Noteproperty 'CanRestart' ([Bool]$CanRestart)
                 $Out | Add-Member Aliasproperty Name ServiceName
-                $Out.PSObject.TypeNames.Insert(0, 'PowerUp.UnquotedService')
+                $Out.PSObject.TypeNames.Insert(0, 'lol.UnquotedService')
                 $Out
             }
         }
@@ -2122,11 +2122,11 @@ Get a set of potentially exploitable service binares/config files.
 
 .OUTPUTS
 
-PowerUp.ModifiablePath
+lol.ModifiablePath
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
-    [OutputType('PowerUp.ModifiableServiceFile')]
+    [OutputType('lol.ModifiableServiceFile')]
     [CmdletBinding()]
     Param()
 
@@ -2148,7 +2148,7 @@ PowerUp.ModifiablePath
             $Out | Add-Member Noteproperty 'AbuseFunction' "Install-ServiceBinary -Name '$ServiceName'"
             $Out | Add-Member Noteproperty 'CanRestart' ([Bool]$CanRestart)
             $Out | Add-Member Aliasproperty Name ServiceName
-            $Out.PSObject.TypeNames.Insert(0, 'PowerUp.ModifiableServiceFile')
+            $Out.PSObject.TypeNames.Insert(0, 'lol.ModifiableServiceFile')
             $Out
         }
     }
@@ -2178,11 +2178,11 @@ Get a set of potentially exploitable services.
 
 .OUTPUTS
 
-PowerUp.ModifiablePath
+lol.ModifiablePath
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
-    [OutputType('PowerUp.ModifiableService')]
+    [OutputType('lol.ModifiableService')]
     [CmdletBinding()]
     Param()
 
@@ -2196,7 +2196,7 @@ PowerUp.ModifiablePath
         $Out | Add-Member Noteproperty 'AbuseFunction' "Invoke-ServiceAbuse -Name '$($ServiceDetails.name)'"
         $Out | Add-Member Noteproperty 'CanRestart' ([Bool]$CanRestart)
         $Out | Add-Member Aliasproperty Name ServiceName
-        $Out.PSObject.TypeNames.Insert(0, 'PowerUp.ModifiableService')
+        $Out.PSObject.TypeNames.Insert(0, 'lol.ModifiableService')
         $Out
     }
 }
@@ -2241,7 +2241,7 @@ Gets detailed information about the 'VulnSVC' service.
 System.Management.ManagementObject
 #>
 
-    [OutputType('PowerUp.ModifiableService')]
+    [OutputType('lol.ModifiableService')]
     [CmdletBinding()]
     Param(
         [Parameter(Position = 0, Mandatory = $True, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
@@ -2362,13 +2362,13 @@ Abuses service 'VulnSVC' to execute a custom command.
 
 .OUTPUTS
 
-PowerUp.AbusedService
+lol.AbusedService
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUserNameAndPassWordParams', '')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '')]
-    [OutputType('PowerUp.AbusedService')]
+    [OutputType('lol.AbusedService')]
     [CmdletBinding()]
     Param(
         [Parameter(Position = 0, Mandatory = $True, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
@@ -2505,7 +2505,7 @@ PowerUp.AbusedService
             $Out = New-Object PSObject
             $Out | Add-Member Noteproperty 'ServiceAbused' $TargetService.Name
             $Out | Add-Member Noteproperty 'Command' $($ServiceCommands -join ' && ')
-            $Out.PSObject.TypeNames.Insert(0, 'PowerUp.AbusedService')
+            $Out.PSObject.TypeNames.Insert(0, 'lol.AbusedService')
             $Out
         }
     }
@@ -2599,13 +2599,13 @@ executes a custom command.
 
 .OUTPUTS
 
-PowerUp.ServiceBinary
+lol.ServiceBinary
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUserNameAndPassWordParams', '')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '')]
-    [OutputType('PowerUp.ServiceBinary')]
+    [OutputType('lol.ServiceBinary')]
     [CmdletBinding()]
     Param(
         [Parameter(Position = 0, Mandatory = $True, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
@@ -2689,7 +2689,7 @@ PowerUp.ServiceBinary
         $Out | Add-Member Noteproperty 'ServiceName' $TargetService.Name
         $Out | Add-Member Noteproperty 'Path' $Path
         $Out | Add-Member Noteproperty 'Command' $ServiceCommand
-        $Out.PSObject.TypeNames.Insert(0, 'PowerUp.ServiceBinary')
+        $Out.PSObject.TypeNames.Insert(0, 'lol.ServiceBinary')
         $Out
     }
 }
@@ -2778,13 +2778,13 @@ for VulnSVC with one that executes a custom command.
 
 .OUTPUTS
 
-PowerUp.ServiceBinary.Installed
+lol.ServiceBinary.Installed
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUserNameAndPassWordParams', '')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '')]
-    [OutputType('PowerUp.ServiceBinary.Installed')]
+    [OutputType('lol.ServiceBinary.Installed')]
     [CmdletBinding()]
     Param(
         [Parameter(Position = 0, Mandatory = $True, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
@@ -2859,7 +2859,7 @@ PowerUp.ServiceBinary.Installed
 
         $Result = Write-ServiceBinary -Name $ServiceDetails.Name -Command $ServiceCommand -Path $ServicePath
         $Result | Add-Member Noteproperty 'BackupPath' $BackupPath
-        $Result.PSObject.TypeNames.Insert(0, 'PowerUp.ServiceBinary.Installed')
+        $Result.PSObject.TypeNames.Insert(0, 'lol.ServiceBinary.Installed')
         $Result
     }
 }
@@ -2910,11 +2910,11 @@ Restore the original binary for the service 'VulnSVC' from a custom location.
 
 .OUTPUTS
 
-PowerUp.ServiceBinary.Installed
+lol.ServiceBinary.Installed
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
-    [OutputType('PowerUp.ServiceBinary.Restored')]
+    [OutputType('lol.ServiceBinary.Restored')]
     [CmdletBinding()]
     Param(
         [Parameter(Position = 0, Mandatory = $True, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
@@ -2948,7 +2948,7 @@ PowerUp.ServiceBinary.Installed
         $Out | Add-Member Noteproperty 'ServiceName' $ServiceDetails.Name
         $Out | Add-Member Noteproperty 'ServicePath' $ServicePath
         $Out | Add-Member Noteproperty 'BackupPath' $BackupPath
-        $Out.PSObject.TypeNames.Insert(0, 'PowerUp.ServiceBinary.Restored')
+        $Out.PSObject.TypeNames.Insert(0, 'lol.ServiceBinary.Restored')
         $Out
     }
 }
@@ -3021,7 +3021,7 @@ current user.
 
 .OUTPUTS
 
-PowerUp.HijackableDLL.Process
+lol.HijackableDLL.Process
 
 .LINK
 
@@ -3029,7 +3029,7 @@ https://www.mandiant.com/blog/malware-persistence-windows-registry/
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
-    [OutputType('PowerUp.HijackableDLL.Process')]
+    [OutputType('lol.HijackableDLL.Process')]
     [CmdletBinding()]
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
@@ -3102,7 +3102,7 @@ https://www.mandiant.com/blog/malware-persistence-windows-registry/
                                 $Out | Add-Member Noteproperty 'ProcessPath' $TargetProcess.Path
                                 $Out | Add-Member Noteproperty 'ProcessOwner' $ProcessOwner
                                 $Out | Add-Member Noteproperty 'ProcessHijackableDLL' $ModulePath
-                                $Out.PSObject.TypeNames.Insert(0, 'PowerUp.HijackableDLL.Process')
+                                $Out.PSObject.TypeNames.Insert(0, 'lol.HijackableDLL.Process')
                                 $Out
                             }
                         }
@@ -3142,7 +3142,7 @@ Finds all %PATH% .DLL hijacking opportunities.
 
 .OUTPUTS
 
-PowerUp.HijackableDLL.Path
+lol.HijackableDLL.Path
 
 .LINK
 
@@ -3150,7 +3150,7 @@ http://www.greyhathacker.net/?p=738
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
-    [OutputType('PowerUp.HijackableDLL.Path')]
+    [OutputType('lol.HijackableDLL.Path')]
     [CmdletBinding()]
     Param()
 
@@ -3162,7 +3162,7 @@ http://www.greyhathacker.net/?p=738
             if ($Null -ne $ModifidablePath.ModifiablePath) {
                 $ModifidablePath | Add-Member Noteproperty '%PATH%' $_
                 $ModifidablePath | Add-Member Aliasproperty Name '%PATH%'
-                $ModifidablePath.PSObject.TypeNames.Insert(0, 'PowerUp.HijackableDLL.Path')
+                $ModifidablePath.PSObject.TypeNames.Insert(0, 'lol.HijackableDLL.Path')
                 $ModifidablePath
             }
         }
@@ -3195,7 +3195,7 @@ File name to write the generated DLL out to.
 
 .PARAMETER Architecture
 
-The Architecture to generate for the DLL, x86 or x64. If not specified, PowerUp
+The Architecture to generate for the DLL, x86 or x64. If not specified, lol
 will try to automatically determine the correct architecture.
 
 .PARAMETER BatPath
@@ -3225,13 +3225,13 @@ Custom command to execute instead of user creation.
 
 .OUTPUTS
 
-PowerUp.HijackableDLL
+lol.HijackableDLL
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUserNameAndPassWordParams', '')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '')]
-    [OutputType('PowerUp.HijackableDLL')]
+    [OutputType('lol.HijackableDLL')]
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True)]
@@ -3388,7 +3388,7 @@ PowerUp.HijackableDLL
     $Out | Add-Member Noteproperty 'Architecture' $TargetArchitecture
     $Out | Add-Member Noteproperty 'BatLauncherPath' $TargetBatPath
     $Out | Add-Member Noteproperty 'Command' $BatCommand
-    $Out.PSObject.TypeNames.Insert(0, 'PowerUp.HijackableDLL')
+    $Out.PSObject.TypeNames.Insert(0, 'lol.HijackableDLL')
     $Out
 }
 
@@ -3491,7 +3491,7 @@ Finds any autologon credentials left in the registry.
 
 .OUTPUTS
 
-PowerUp.RegistryAutoLogon
+lol.RegistryAutoLogon
 
 Custom PSObject containing autologin credentials found in the registry.
 
@@ -3500,7 +3500,7 @@ Custom PSObject containing autologin credentials found in the registry.
 https://github.com/rapid7/metasploit-framework/blob/master/modules/post/windows/gather/credentials/windows_autologin.rb
 #>
 
-    [OutputType('PowerUp.RegistryAutoLogon')]
+    [OutputType('lol.RegistryAutoLogon')]
     [CmdletBinding()]
     Param()
 
@@ -3524,7 +3524,7 @@ https://github.com/rapid7/metasploit-framework/blob/master/modules/post/windows/
             $Out | Add-Member Noteproperty 'AltDefaultDomainName' $AltDefaultDomainName
             $Out | Add-Member Noteproperty 'AltDefaultUserName' $AltDefaultUserName
             $Out | Add-Member Noteproperty 'AltDefaultPassword' $AltDefaultPassword
-            $Out.PSObject.TypeNames.Insert(0, 'PowerUp.RegistryAutoLogon')
+            $Out.PSObject.TypeNames.Insert(0, 'lol.RegistryAutoLogon')
             $Out
         }
     }
@@ -3555,13 +3555,13 @@ Return vulneable autorun binaries (or associated configs).
 
 .OUTPUTS
 
-PowerUp.ModifiableRegistryAutoRun
+lol.ModifiableRegistryAutoRun
 
 Custom PSObject containing results.
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
-    [OutputType('PowerUp.ModifiableRegistryAutoRun')]
+    [OutputType('lol.ModifiableRegistryAutoRun')]
     [CmdletBinding()]
     Param()
 
@@ -3593,7 +3593,7 @@ Custom PSObject containing results.
                 $Out | Add-Member Noteproperty 'Path' $Path
                 $Out | Add-Member Noteproperty 'ModifiableFile' $_
                 $Out | Add-Member Aliasproperty Name Key
-                $Out.PSObject.TypeNames.Insert(0, 'PowerUp.ModifiableRegistryAutoRun')
+                $Out.PSObject.TypeNames.Insert(0, 'lol.ModifiableRegistryAutoRun')
                 $Out
             }
         }
@@ -3635,13 +3635,13 @@ Return scheduled tasks with modifiable command strings.
 
 .OUTPUTS
 
-PowerUp.ModifiableScheduledTaskFile
+lol.ModifiableScheduledTaskFile
 
 Custom PSObject containing results.
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
-    [OutputType('PowerUp.ModifiableScheduledTaskFile')]
+    [OutputType('lol.ModifiableScheduledTaskFile')]
     [CmdletBinding()]
     Param()
 
@@ -3666,7 +3666,7 @@ Custom PSObject containing results.
                     $Out | Add-Member Noteproperty 'TaskFilePath' $_
                     $Out | Add-Member Noteproperty 'TaskTrigger' $TaskTrigger
                     $Out | Add-Member Aliasproperty Name TaskName
-                    $Out.PSObject.TypeNames.Insert(0, 'PowerUp.ModifiableScheduledTaskFile')
+                    $Out.PSObject.TypeNames.Insert(0, 'lol.ModifiableScheduledTaskFile')
                     $Out
                 }
 
@@ -3677,7 +3677,7 @@ Custom PSObject containing results.
                     $Out | Add-Member Noteproperty 'TaskFilePath' $_
                     $Out | Add-Member Noteproperty 'TaskTrigger' $TaskTrigger
                     $Out | Add-Member Aliasproperty Name TaskName
-                    $Out.PSObject.TypeNames.Insert(0, 'PowerUp.ModifiableScheduledTaskFile')
+                    $Out.PSObject.TypeNames.Insert(0, 'lol.ModifiableScheduledTaskFile')
                     $Out
                 }
             }
@@ -3713,13 +3713,13 @@ http://www.fuzzysecurity.com/tutorials/16.html
 
 .OUTPUTS
 
-PowerUp.UnattendedInstallFile
+lol.UnattendedInstallFile
 
 Custom PSObject containing results.
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
-    [OutputType('PowerUp.UnattendedInstallFile')]
+    [OutputType('lol.UnattendedInstallFile')]
     [CmdletBinding()]
     Param()
 
@@ -3742,7 +3742,7 @@ Custom PSObject containing results.
         $Out = New-Object PSObject
         $Out | Add-Member Noteproperty 'UnattendPath' $_
         $Out | Add-Member Aliasproperty Name UnattendPath
-        $Out.PSObject.TypeNames.Insert(0, 'PowerUp.UnattendedInstallFile')
+        $Out.PSObject.TypeNames.Insert(0, 'lol.UnattendedInstallFile')
         $Out
     }
 
@@ -4182,7 +4182,7 @@ Server      : tokyo000
 
 .OUTPUTS
 
-PowerUp.SiteListPassword
+lol.SiteListPassword
 
 .LINK
 
@@ -4193,7 +4193,7 @@ https://www.syss.de/fileadmin/dokumente/Publikationen/2011/SySS_2011_Deeg_Privil
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
-    [OutputType('PowerUp.SiteListPassword')]
+    [OutputType('lol.SiteListPassword')]
     [CmdletBinding()]
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
@@ -4295,7 +4295,7 @@ https://www.syss.de/fileadmin/dokumente/Publikationen/2011/SySS_2011_Deeg_Privil
                                 'DecPassword' = $DecPassword;
                             }
                             $Out = New-Object -TypeName PSObject -Property $ObjectProperties
-                            $Out.PSObject.TypeNames.Insert(0, 'PowerUp.SiteListPassword')
+                            $Out.PSObject.TypeNames.Insert(0, 'lol.SiteListPassword')
                             $Out
                         }
                         catch {
@@ -4557,7 +4557,7 @@ Writes the user add MSI to the local directory.
 
 .OUTPUTS
 
-PowerUp.UserAddMSI
+lol.UserAddMSI
 #>
 
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSShouldProcess', '')]
@@ -4579,7 +4579,7 @@ PowerUp.UserAddMSI
 
         $Out = New-Object PSObject
         $Out | Add-Member Noteproperty 'OutputPath' $Path
-        $Out.PSObject.TypeNames.Insert(0, 'PowerUp.UserAddMSI')
+        $Out.PSObject.TypeNames.Insert(0, 'lol.UserAddMSI')
         $Out
     }
     catch {
@@ -4734,7 +4734,7 @@ detailing any discovered issues.
         $Header = $Header + "TH{border-width: 1px;padding: 0px;border-style: solid;border-color: black;background-color:thistle}"
         $Header = $Header + "TD{border-width: 3px;padding: 0px;border-style: solid;border-color: black;background-color:palegoldenrod}"
         $Header = $Header + "</style>"
-        ConvertTo-HTML -Head $Header -Body "<H1>PowerUp report for '$($Env:ComputerName).$($Env:UserName)'</H1>" | Out-File $HtmlReportFile
+        ConvertTo-HTML -Head $Header -Body "<H1>lol report for '$($Env:ComputerName).$($Env:UserName)'</H1>" | Out-File $HtmlReportFile
     }
 
     Write-Verbose "Running Invoke-PrivescAudit"
@@ -4837,7 +4837,7 @@ detailing any discovered issues.
 
 
 # PSReflect signature specifications
-$Module = New-InMemoryModule -ModuleName PowerUpModule
+$Module = New-InMemoryModule -ModuleName lolModule
 # [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPositionalParameters', '', Scope='Function')]
 
 $FunctionDefinitions = @(
@@ -4855,7 +4855,7 @@ $FunctionDefinitions = @(
 )
 
 # https://rohnspowershellblog.wordpress.com/2013/03/19/viewing-service-acls/
-$ServiceAccessRights = psenum $Module PowerUp.ServiceAccessRights UInt32 @{
+$ServiceAccessRights = psenum $Module lol.ServiceAccessRights UInt32 @{
     QueryConfig             =   '0x00000001'
     ChangeConfig            =   '0x00000002'
     QueryStatus             =   '0x00000004'
@@ -4878,7 +4878,7 @@ $ServiceAccessRights = psenum $Module PowerUp.ServiceAccessRights UInt32 @{
     AllAccess               =   '0x000F01FF'
 } -Bitfield
 
-$SidAttributes = psenum $Module PowerUp.SidAttributes UInt32 @{
+$SidAttributes = psenum $Module lol.SidAttributes UInt32 @{
     SE_GROUP_MANDATORY              =   '0x00000001'
     SE_GROUP_ENABLED_BY_DEFAULT     =   '0x00000002'
     SE_GROUP_ENABLED                =   '0x00000004'
@@ -4889,7 +4889,7 @@ $SidAttributes = psenum $Module PowerUp.SidAttributes UInt32 @{
     SE_GROUP_INTEGRITY_ENABLED      =   '0xC0000000'
 } -Bitfield
 
-$LuidAttributes = psenum $Module PowerUp.LuidAttributes UInt32 @{
+$LuidAttributes = psenum $Module lol.LuidAttributes UInt32 @{
     DISABLED                            =   '0x00000000'
     SE_PRIVILEGE_ENABLED_BY_DEFAULT     =   '0x00000001'
     SE_PRIVILEGE_ENABLED                =   '0x00000002'
@@ -4897,7 +4897,7 @@ $LuidAttributes = psenum $Module PowerUp.LuidAttributes UInt32 @{
     SE_PRIVILEGE_USED_FOR_ACCESS        =   '0x80000000'
 } -Bitfield
 
-$SecurityEntity = psenum $Module PowerUp.SecurityEntity UInt32 @{
+$SecurityEntity = psenum $Module lol.SecurityEntity UInt32 @{
     SeCreateTokenPrivilege              =   1
     SeAssignPrimaryTokenPrivilege       =   2
     SeLockMemoryPrivilege               =   3
@@ -4935,52 +4935,52 @@ $SecurityEntity = psenum $Module PowerUp.SecurityEntity UInt32 @{
     SeCreateSymbolicLinkPrivilege       =   35
 }
 
-$SID_AND_ATTRIBUTES = struct $Module PowerUp.SidAndAttributes @{
+$SID_AND_ATTRIBUTES = struct $Module lol.SidAndAttributes @{
     Sid         =   field 0 IntPtr
     Attributes  =   field 1 UInt32
 }
 
-$TOKEN_TYPE_ENUM = psenum $Module PowerUp.TokenTypeEnum UInt32 @{
+$TOKEN_TYPE_ENUM = psenum $Module lol.TokenTypeEnum UInt32 @{
     Primary         = 1
     Impersonation   = 2
 }
 
-$TOKEN_TYPE = struct $Module PowerUp.TokenType @{
+$TOKEN_TYPE = struct $Module lol.TokenType @{
     Type  = field 0 $TOKEN_TYPE_ENUM
 }
 
-$SECURITY_IMPERSONATION_LEVEL_ENUM = psenum $Module PowerUp.ImpersonationLevelEnum UInt32 @{
+$SECURITY_IMPERSONATION_LEVEL_ENUM = psenum $Module lol.ImpersonationLevelEnum UInt32 @{
     Anonymous         =   0
     Identification    =   1
     Impersonation     =   2
     Delegation        =   3
 }
 
-$IMPERSONATION_LEVEL = struct $Module PowerUp.ImpersonationLevel @{
+$IMPERSONATION_LEVEL = struct $Module lol.ImpersonationLevel @{
     ImpersonationLevel  = field 0 $SECURITY_IMPERSONATION_LEVEL_ENUM
 }
 
-$TOKEN_GROUPS = struct $Module PowerUp.TokenGroups @{
+$TOKEN_GROUPS = struct $Module lol.TokenGroups @{
     GroupCount  = field 0 UInt32
     Groups      = field 1 $SID_AND_ATTRIBUTES.MakeArrayType() -MarshalAs @('ByValArray', 32)
 }
 
-$LUID = struct $Module PowerUp.Luid @{
+$LUID = struct $Module lol.Luid @{
     LowPart         =   field 0 $SecurityEntity
     HighPart        =   field 1 Int32
 }
 
-$LUID_AND_ATTRIBUTES = struct $Module PowerUp.LuidAndAttributes @{
+$LUID_AND_ATTRIBUTES = struct $Module lol.LuidAndAttributes @{
     Luid         =   field 0 $LUID
     Attributes   =   field 1 UInt32
 }
 
-$TOKEN_PRIVILEGES = struct $Module PowerUp.TokenPrivileges @{
+$TOKEN_PRIVILEGES = struct $Module lol.TokenPrivileges @{
     PrivilegeCount  = field 0 UInt32
     Privileges      = field 1 $LUID_AND_ATTRIBUTES.MakeArrayType() -MarshalAs @('ByValArray', 50)
 }
 
-$Types = $FunctionDefinitions | Add-Win32Type -Module $Module -Namespace 'PowerUp.NativeMethods'
+$Types = $FunctionDefinitions | Add-Win32Type -Module $Module -Namespace 'lol.NativeMethods'
 $Advapi32 = $Types['advapi32']
 $Kernel32 = $Types['kernel32']
 $NTDll    = $Types['ntdll']
