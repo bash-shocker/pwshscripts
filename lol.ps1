@@ -1,6 +1,6 @@
 <#
 
-PowerUp aims to be a clearinghouse of common Windows privilege escalation
+lol aims to be a clearinghouse of common Windows privilege escalation
 vectors that rely on misconfigurations. See README.md for more information.
 
 Author: @harmj0y
@@ -730,7 +730,7 @@ New-Struct. :P
 
 ########################################################
 #
-# PowerUp Helpers
+# lol Helpers
 #
 ########################################################
 
