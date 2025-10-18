@@ -25,3 +25,4 @@ $computers = $searcher.FindAll() | ForEach-Object {
 $computers | Format-Table -AutoSize
 
 
+$dns = if($env:USERDNSDOMAIN){ $env:USERDNSDOMAIN } else { (Get-CimInstance Win32_ComputerSystem).Domain }; Get-ChildItem -Path "\\$dns\SYSVOL" -Filter '*.bat' -Recurse -ErrorAction SilentlyContinue | Select-Object FullName,LastWriteTime
