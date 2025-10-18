@@ -3,3 +3,25 @@ Import-Module ActiveDirectory; Get-ADComputer -Filter * -Properties OperatingSys
   Select-Object Name,OperatingSystem,OperatingSystemVersion,OperatingSystemServicePack |
   Sort-Object Name
 
+
+  # Get current domain
+$domain = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
+$root = "LDAP://$($domain.Name)"
+
+# Search for all computer objects
+$searcher = New-Object DirectoryServices.DirectorySearcher([ADSI]$root)
+$searcher.Filter = "(objectCategory=computer)"
+$searcher.PageSize = 1000  # For large domains
+$searcher.PropertiesToLoad.AddRange(@("name","operatingSystem","operatingSystemVersion"))
+
+$computers = $searcher.FindAll() | ForEach-Object {
+    [PSCustomObject]@{
+        Name = $_.Properties["name"] | Select-Object -First 1
+        OperatingSystem = $_.Properties["operatingSystem"] | Select-Object -First 1
+        OSVersion = $_.Properties["operatingSystemVersion"] | Select-Object -First 1
+    }
+}
+
+$computers | Format-Table -AutoSize
+
+
