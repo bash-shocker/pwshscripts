@@ -1,0 +1,76 @@
+Domain Enumeration
+
+The below code will show the current domain name:
+
+PS C:> [System.Net.Dns]::GetHostByName(($env:computerName))
+PS C:> [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
+
+
+Domain Forest Trusts
+
+PS C:> ([System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()).GetAllTrustRelationships()
+PS C:> ([System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest())
+PS C:> ([ADSISearcher]"(objectClass=trustedDomain)").FindAll()
+PS C:> ([ADSISearcher]"(objectClass=trustedDomain)").FindAll() | %{$a=$_.Properties["trustattributes"]; $d=$_.Properties["trustdirection"]; $t=$_.Properties["trusttype"] ; write-Host $_.Properties["distinguishedname"] $a $d $t}
+
+Get Password Policy
+
+PS C:> Get-ADDefaultDomainPasswordPolicy -Current LoggedOnUser
+
+Get a Domain Computer
+
+PS C:> ([ADSISearcher]"(&(objectClass=computer)(name=Man*))").FindAll()
+
+In the above one liner we searched for a computer name starting with “Man”. Similarly we can enumerate a specific computer if we we know the whole name.
+
+PS C:> ([ADSISearcher]"(&(objectClass=computer)(name=Manmeet))").FindAll()
+
+Here, we fetched computer “Manmeet” ‘s details.’
+Get All Domain Computers
+
+PS C:> ([ADSISearcher]"ObjectClass=computer").FindAll()
+
+Enumerate Single User
+
+If we want to enumerate single user, we can use below code:
+
+PS C:> ([ADSISearcher]"(&(objectClass=user)(samAccountType=805306368)(samaccountname=manmeet))").FindAll().Properties
+
+This will fetch user “manmeet” details
+Enumerate All Domain Controllers
+
+PS C:> ([ADSISearcher]"(&(objectCategory=computer)(userAccountControl:1.2.840.113556.1.4.803:=8192))").FindAll()
+
+Enumerate All Users
+
+If we want to enumerate all users, we can use below code:
+
+PS C:> ([ADSISearcher]"(&(objectClass=user (samAccountType=805306368))").FindAll()|ft
+
+Enumerate All Users With Specific Properties
+
+There could be many properties that a user could have. If we want to filter out some properties in all users, we can use below code:
+
+PS C:> ([ADSISearcher]"(&(objectClass=user)(samAccountType=805306368))").FindAll() | %{ $_.Properties["samaccountname"] }
+
+This code will just display “samaccountname” as a result for all users.
+Enumerate all users with a SPN
+
+A service instance’s service principal name (SPN) is a unique identifier. Kerberos authentication uses SPNs to link a service instance to a service login account. This enables a client application to ask the service to authenticate an account even if it doesn’t know the account name.
+If we want to display all users with SPN then we can use below code:
+
+PS C:> ([ADSISearcher]"(&(objectClass=user)(servicePrincipalName=*)(samAccountType=805306368))").FindAll()
+
+Enumerate a Domain Group
+
+PS C:> ([ADSISearcher]"(&(ObjectClass=group)(samaccountname=Domain Admins))").FindOne()
+
+Enumerate All Domain Groups
+
+PS C:> ([ADSISearcher]"ObjectClass=group").FindAll()
+
+Enumerate domain group members
+
+PS C:> ([ADSISearcher]"(distinguishedname=CN=AB ACCESS,CN=Users,DC=corp,DC=manmeetdc,DC=local)").FindOne().Properties.member
+
+Using these one liners we can do same things that powerview.ps1 is doing.
