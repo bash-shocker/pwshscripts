@@ -75,5 +75,37 @@ PS C:> ([ADSISearcher]"(distinguishedname=CN=AB ACCESS,CN=Users,DC=corp,DC=manme
 
 Using these one liners we can do same things that powerview.ps1 is doing.
 
+----------------------------------------
+# get domain DN (build "DC=..." string)
+$domain = ([System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()).Name
+$baseDN = ($domain.Split('.') | ForEach-Object { "DC=$_"} ) -join ','
+
+$searcher = New-Object System.DirectoryServices.DirectorySearcher
+$searcher.SearchRoot = "LDAP://$baseDN"
+$searcher.PageSize = 1000
+$searcher.Filter = '(&(objectCategory=person)(objectClass=user)(servicePrincipalName=*))'
+$searcher.PropertiesToLoad.AddRange(@('sAMAccountName','servicePrincipalName','distinguishedName','userAccountControl')) | Out-Null
+
+$results = $searcher.FindAll()
+
+$results | ForEach-Object {
+    $props = $_.Properties
+    $sam = ($props['samaccountname'] -join ';')
+    $spns = ($props['serviceprincipalname'] -join ';')
+    $dn = ($props['distinguishedname'] -join ';')
+
+    # userAccountControl bit for DONT_REQUIRE_PREAUTH = 0x00400000 (decimal 4194304)
+    $uac = 0
+    if ($props['useraccountcontrol']) { $uac = $props['useraccountcontrol'][0] }
+    $dontReqPreauth = (($uac -band 0x400000) -ne 0)
+
+    [PSCustomObject]@{
+        SamAccountName = $sam
+        DistinguishedName = $dn
+        SPNs = $spns
+        DontRequirePreauth = $dontReqPreauth
+    }
+} | Sort-Object SamAccountName | Format-Table -AutoSize
+
 Resolve-DnsName -Type SRV -DnsOnly -Name "_ldap._tcp.dc._msdcs.<YourDomainName>"
 
