@@ -1,59 +1,19 @@
 <#
     .SYNOPSIS
-    Powerful asynchronus IPv4 Port Scanner
+    Powerful asynchronous IPv4 Port Scanner (improved).
 
     .DESCRIPTION
-    This powerful asynchronus IPv4 Port Scanner allows you to scan every Port-Range you want (500 to 2600 would work).
-
-    The result will contain the Port number, Protocol, Service name, Description and the Status.
-
-    .EXAMPLE
-    PS C:\> Start-PortScan.ps1 -ComputerName f1dc2 -StartPort 1 -EndPort 1000
-
-    ComputerName IP V4 Address Port Protocol Open ServiceName    ServiceDescription                    
-    ------------ ------------- ---- -------- ---- -----------    ------------------                    
-    f1dc2        192.168.13.4  53   TCP      True domain         Domain Name Server                    
-    f1dc2        192.168.13.4  88   TCP      True kerberos       Kerberos                              
-    f1dc2        192.168.13.4  90   TCP      True dnsix          DNSIX Securit Attribute Token Map     
-    f1dc2        192.168.13.4  135  TCP      True epmap          DCE endpoint resolution               
-    f1dc2        192.168.13.4  139  TCP      True netbios-ssn    NETBIOS Session Service               
-    f1dc2        192.168.13.4  389  TCP      True ldap           Lightweight Directory Access Protocol 
-    f1dc2        192.168.13.4  445  TCP      True microsoft-ds   Microsoft-DS                          
-    f1dc2        192.168.13.4  464  TCP      True kpasswd        kpasswd                               
-    f1dc2        192.168.13.4  593  TCP      True http-rpc-epmap HTTP RPC Ep Map                       
-    f1dc2        192.168.13.4  636  TCP      True ldaps          ldap protocol over TLS/SSL (was sldap)
+    This powerful asynchronous IPv4 Port Scanner allows you to scan any Port-Range you want (0 to 65535 supported).
+    The result will contain the Port number, Protocol, Service name (if Ports.txt available), Description and the Status.
 
     .EXAMPLE
+    # Scan LPTREDTEAM03 for ports 1-1000
+    PS C:\> .\Start-PortScan.ps1 -ComputerName LPTREDTEAM03 -StartPort 1 -EndPort 1000
 
-    $p = '53u', '53t',
-    '88u', '88t',
-    '123u',
-    '135t',
-    '445t',
-    '464u', '464t',
-    '389u', '389t',
-    '636t',
-    '3268t',
-    '3269t'
+    .EXAMPLE
+    # Scan explicit ports (UDP & TCP)
+    PS C:\> .\Start-PortScan.ps1 -ComputerName f3dc2 -Port @('53u','53t','389t','0-1023') -Threads 200 -OutputPath C:\temp\ports.csv
 
-    .\Start-PortScan.ps1 -ComputerName f3dc2 -Port $p
-
-    ComputerName IP V4 Address Port Protocol Open  ServiceName  ServiceDescription                    
-    ------------ ------------- ---- -------- ----  -----------  ------------------                    
-    f3dc2        192.168.13.11 53   UDP      True  domain       Domain Name Server                    
-    f3dc2        192.168.13.11 53   TCP      True  domain       Domain Name Server                    
-    f3dc2        192.168.13.11 88   TCP      True  kerberos     Kerberos                              
-    f3dc2        192.168.13.11 135  TCP      True  epmap        DCE endpoint resolution               
-    f3dc2        192.168.13.11 445  TCP      True  microsoft-ds Microsoft-DS                          
-    f3dc2        192.168.13.11 464  TCP      True  kpasswd      kpasswd                               
-    f3dc2        192.168.13.11 389  TCP      True  ldap         Lightweight Directory Access Protocol 
-    f3dc2        192.168.13.11 636  TCP      True  ldaps        ldap protocol over TLS/SSL (was sldap)
-    f3dc2        192.168.13.11 3268 TCP      True  msft-gc      Microsoft Global Catalog              
-    f3dc2        192.168.13.11 3269 TCP      True  msft-gc-ssl  Microsoft Global Catalog with LDAP/SSL
-    f3dc2        192.168.13.11 88   UDP      False kerberos     Kerberos                              
-    f3dc2        192.168.13.11 123  UDP      False ntp          Network Time Protocol                 
-    f3dc2        192.168.13.11 464  UDP      False kpasswd      kpasswd                               
-    f3dc2        192.168.13.11 389  UDP      False ldap         Lightweight Directory Access Protocol 
 #>
 
 [CmdletBinding()]
@@ -61,12 +21,14 @@ param(
     [Parameter(Position = 0, Mandatory = $true)]
     [string]$ComputerName,
 
+    # allow 0..65535 (0 sometimes used in user requests; many network APIs treat 0 specially,
+    # but the scanner will attempt to test port 0 if explicitly requested)
     [Parameter(Position = 1, ParameterSetName = 'PortRange')]
-    [ValidateRange(1, 65535)]
+    [ValidateRange(0, 65535)]
     [int]$StartPort = 1,
 
     [Parameter(Position = 2, ParameterSetName = 'PortRange')]
-    [ValidateRange(1, 65535)]
+    [ValidateRange(0, 65535)]
     [ValidateScript( {
             if ($_ -lt $StartPort)
             {
@@ -84,11 +46,16 @@ param(
     
     [int]$Threads = 500,
 
-    [switch]$Force
+    [switch]$Force,
+
+    [string]$OutputPath
 )
 
 begin
 {
+    # helper: determine script root even if running in memory
+    $scriptRoot = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
+
     function Test-Port
     {  
         [Cmdletbinding()]
@@ -138,14 +105,18 @@ begin
                     {
                         $tcpClient = New-Object System.Net.Sockets.TcpClient
                         $sw.Start()
-                        $connect = $tcpClient.BeginConnect($c, $Port, $null, $null)
-                        $wait = $connect.AsyncWaitHandle.WaitOne($TcpTimeout, $false)
-                    
+                        try {
+                            $connect = $tcpClient.BeginConnect($c, $Port, $null, $null)
+                            $wait = $connect.AsyncWaitHandle.WaitOne($TcpTimeout, $false)
+                        } catch {
+                            $wait = $false
+                        }
+
                         if (-not $wait)
                         {
-                            $tcpClient.Close()
+                            try { $tcpClient.Close() } catch {}
                             $sw.Stop()
-                            Write-Verbose 'Connection Timeout'
+                            Write-Verbose "Connection Timeout to $c:$Port"
 
                             $result.Open = $false
                             $result.Notes = 'Connection to Port Timed Out'
@@ -153,8 +124,7 @@ begin
                         }
                         else
                         {
-                            [void]$tcpClient.EndConnect($connect)
-                            $tcpClient.Dispose()
+                            try { [void]$tcpClient.EndConnect($connect); $tcpClient.Dispose() } catch {}
                             $sw.Stop()
                             $result.Open = $true
                         }
@@ -173,35 +143,29 @@ begin
                         $result.Port = $Port
                         $result.TypePort = 'UDP'
 
-                        Write-Verbose 'Making UDP connection to remote server'
+                        Write-Verbose "Making UDP connection to remote server $c:$Port"
                         $sw.Start()
-                        $udpClient.Connect($c, $Port)
-                        Write-Verbose 'Sending message to remote host'
-                        [void]$udpClient.Send($byte, $byte.Length)
-                        Write-Verbose 'Creating remote endpoint'
-                        $remoteEndpoint = New-Object System.Net.IPEndPoint([System.Net.IPAddress]::Any, 0)
-
-                        try
-                        {
-                            Write-Verbose 'Waiting for message return'
+                        try {
+                            $udpClient.Connect($c, $Port)
+                            [void]$udpClient.Send($byte, $byte.Length)
+                            $remoteEndpoint = New-Object System.Net.IPEndPoint([System.Net.IPAddress]::Any, 0)
                             $receiveBytes = $udpClient.Receive([ref]$remoteEndpoint)
                             $sw.Stop()
                             [string]$returnedData = $a.GetString($receiveBytes)
-                        
-                            Write-Verbose 'Connection Successful'
-                            
+                            Write-Verbose 'UDP Response received'
+
                             $result.Open = $true
                             $result.Notes = $returnedData
                         }
                         catch
                         {
-                            Write-Verbose 'Host maybe unavailable'
+                            Write-Verbose "UDP receive failed or timed out for $c:$Port. Unable to verify open state."
                             $result.Open = $false
                             $result.Notes = 'Unable to verify if port is open or if host is unavailable.'
                         }
                         finally
                         {
-                            $udpClient.Dispose()
+                            try { $udpClient.Dispose() } catch {}
                             $result.ResponseTime = $sw.ElapsedMilliseconds
                         }
                     }
@@ -222,19 +186,19 @@ begin
 
     Write-Verbose -Message "Script started at $(Get-Date)"
 
-    $portListPath = "$PSScriptRoot\Ports.txt"
-    $formatPath = "$PSScriptRoot\PortTest.format.ps1xml"
+    $portListPath = Join-Path -Path $scriptRoot -ChildPath 'Ports.txt'
+    $formatPath = Join-Path -Path $scriptRoot -ChildPath 'PortTest.format.ps1xml'
     
+    $portsHashTable = @{}
     if (Test-Path -Path $portListPath -PathType Leaf)
     {        
-        $portsHashTable = @{ }
         $ports = Import-Csv -Path $portListPath -Delimiter '|' -Header 'Port', 'Protocol', 'ServiceName', 'ServiceDescription' | Where-Object Protocol -eq tcp
 
         foreach ($item in $ports)
         {
             try
             {
-                $portsHashTable.Add($item.Port, ("{0}|{1}" -f $item.ServiceName, $item.ServiceDescription))
+                $portsHashTable[$item.Port] = ("{0}|{1}" -f $item.ServiceName, $item.ServiceDescription)
             }
             catch
             { 
@@ -248,36 +212,92 @@ begin
     }
 
     $assignServiceWithPort = $true
-    $sb = (Get-Command -Name Test-Port).ScriptBlock
-    
+    # Get the ScriptBlock for Test-Port defined above
+    $sb = (Get-Command -Name Test-Port -ErrorAction SilentlyContinue).ScriptBlock
+    if (-not $sb) {
+        Throw "Failed to get the Test-Port scriptblock. Aborting."
+    }
+
+    # expand ports:
+    # If -Port is specified, it may contain single ports, ports with protocol suffix (e.g. 53u/53t), or ranges (e.g. 0-1023 or 0-1023t)
+    function Expand-PortSpecs {
+        param([string[]]$Specs)
+
+        $expanded = New-Object System.Collections.ArrayList
+
+        foreach ($spec in $Specs) {
+            if (-not $spec) { continue }
+            $s = $spec.Trim()
+
+            # match range: start-end with optional protocol suffix
+            if ($s -match '^(?<start>\d{1,5})-(?<end>\d{1,5})(?<prot>[ut])?$') {
+                $start = [int]$Matches.start
+                $end = [int]$Matches.end
+                $prot = $Matches.prot
+
+                if ($start -gt $end) {
+                    # swap
+                    $tmp = $start; $start = $end; $end = $tmp
+                }
+
+                # clamp to 0..65535
+                if ($start -lt 0) { $start = 0 }
+                if ($end -gt 65535) { $end = 65535 }
+
+                for ($p = $start; $p -le $end; $p++) {
+                    $entry = $p.ToString()
+                    if ($prot) { $entry += $prot }
+                    [void]$expanded.Add($entry)
+                }
+            }
+            # match single port with optional protocol suffix: e.g. 53u, 80t, 22
+            elseif ($s -match '^(?<port>\d{1,5})(?<prot>[ut])?$') {
+                $port = [int]$Matches.port
+                if ($port -ge 0 -and $port -le 65535) {
+                    [void]$expanded.Add($s)
+                }
+            }
+            else {
+                Write-Verbose "Ignoring invalid port spec: '$s'"
+            }
+        }
+
+        return ,$expanded
+    }
+
     $ports = if ($Port)
     {
-        $Port
+        # Expand range-style entries and normalize to objects with Protocol property
+        $rawExpanded = Expand-PortSpecs -Specs $Port
+        $rawExpanded
     }
     else
     {
-        $StartPort..$EndPort
+        # Build numeric sequence StartPort..EndPort
+        if ($StartPort -lt 0) { $StartPort = 0 }
+        if ($EndPort -gt 65535) { $EndPort = 65535 }
+        ($StartPort..$EndPort) | ForEach-Object { $_.ToString() }
     }
+
+    # now convert to psobjects with Protocol
     $portsToScan = $ports.Count
-    
     $ports = foreach ($p in $ports)
     {
+        if ($null -eq $p) { continue }
         [void]($p -match '(?<Port>\d{1,5})(?<Protocol>[ut]{1})?')
-        $p = $Matches.Port
-        
-        if ($Matches.Protocol -eq 't')
-        {
-            $p | Add-Member -Name Protocol -MemberType NoteProperty -Value Tcp -PassThru
-        }
-        elseif ($Matches.Protocol -eq 'u')
-        {
-            $p | Add-Member -Name Protocol -MemberType NoteProperty -Value Udp -PassThru
-        }
-        else
-        {
-            $p | Add-Member -Name Protocol -MemberType NoteProperty -Value Tcp -PassThru
+        $portNumber = [int]$Matches.Port
+        $proto = if ($Matches.Protocol -eq 'u') { 'Udp' } elseif ($Matches.Protocol -eq 't') { 'Tcp' } else { 'Tcp' }
+
+        # Create a custom object with numeric port and protocol
+        [pscustomobject]@{
+            Port = $portNumber
+            Protocol = $proto
+            Raw = $p
         }
     }
+
+    # Prepare collection for all results (to allow export later)
+    [System.Collections.ArrayList]$AllResults = @()
 }
 
 process
@@ -331,7 +351,7 @@ process
     {
         $scriptParams = @{
             ComputerName = $ipv4Address
-            Port         = $p
+            Port         = $p.Port
         }
         if ($p.Protocol -eq 'Tcp')
         {
@@ -353,13 +373,13 @@ process
             $progressPercent = 100 
         }
 
-        Write-Progress -Activity "Setting up jobs..." -Id 1 -Status "Current Port: $p" -PercentComplete ($progressPercent)
+        Write-Progress -Activity "Setting up jobs..." -Id 1 -Status "Current Port: $($p.Port) ($($p.Protocol))" -PercentComplete ($progressPercent)
         
         $job = [System.Management.Automation.PowerShell]::Create().AddScript($sb).AddParameters($scriptParams)
         $job.RunspacePool = $runspacePool
         
         $jobResult = [pscustomobject]@{
-            RunNum = $p - $StartPort
+            RunNum = $p.Port - $StartPort
             Pipe   = $job
             Result = $job.BeginInvoke()
         }
@@ -422,6 +442,8 @@ process
                 Port         = $jobResult.Port
                 Protocol     = $jobResult.TypePort
                 Status       = $jobResult.Open
+                ResponseTime = $jobResult.ResponseTime
+                Notes        = $jobResult.Notes
             }
            
             if ($assignServiceWithPort)
@@ -438,7 +460,13 @@ process
             if ($result.Status -or $PSCmdlet.ParameterSetName -eq 'Port')
             {
                 $result.PSObject.TypeNames.Insert(0, "PortScanResult")
-                [pscustomobject]$result
+                $out = [pscustomobject]$result
+
+                # add to collection for optional export
+                [void]$AllResults.Add($out)
+
+                # stream output to host
+                $out
             }
         } 
 
@@ -453,5 +481,21 @@ process
 
 end
 {
+    # If OutputPath provided, export results to CSV
+    if ($OutputPath)
+    {
+        try {
+            $folder = Split-Path -Path $OutputPath -Parent
+            if (-not (Test-Path -Path $folder)) {
+                New-Item -Path $folder -ItemType Directory -Force | Out-Null
+            }
 
+            $AllResults | Export-Csv -Path $OutputPath -NoTypeInformation -Force
+            Write-Verbose "Exported results to $OutputPath"
+            Write-Host "Exported results to $OutputPath"
+        }
+        catch {
+            Write-Warning "Failed to export results to $OutputPath: $_"
+        }
+    }
 }
