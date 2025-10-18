@@ -74,3 +74,6 @@ Enumerate domain group members
 PS C:> ([ADSISearcher]"(distinguishedname=CN=AB ACCESS,CN=Users,DC=corp,DC=manmeetdc,DC=local)").FindOne().Properties.member
 
 Using these one liners we can do same things that powerview.ps1 is doing.
+
+Resolve-DnsName -Type SRV -DnsOnly -Name "_ldap._tcp.dc._msdcs.<YourDomainName>"
+
